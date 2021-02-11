@@ -3,13 +3,16 @@ package org.nunocky.camera2study01
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Matrix
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.view.Surface
 import android.view.TextureView
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                         width: Int,
                         height: Int
                     ) {
+                        rotateTextureView()
                         openCamera()
                     }
 
@@ -57,6 +61,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                         width: Int,
                         height: Int
                     ) {
+                        rotateTextureView()
                     }
 
                     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
@@ -67,6 +72,10 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
                 }
         }
+
+        viewModel.rotation.observe(this) { rotateTextureView() }
+        viewModel.scaleX.observe(this) { rotateTextureView() }
+        viewModel.scaleY.observe(this) { rotateTextureView() }
 
         val permissions = arrayOf(
             Manifest.permission.CAMERA
@@ -146,4 +155,44 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             null
         )
     }
+
+    private fun getCameraOrientation(cameraId: String): Int {
+        val characteristic = cameraManager.getCameraCharacteristics(cameraId)
+        return characteristic.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+    }
+
+    private fun getApplicationOrientation(): Int {
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val rotation = windowManager.defaultDisplay.rotation
+        return when (rotation) {
+            Surface.ROTATION_0 -> 0
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> throw IllegalStateException()
+        }
+    }
+
+    private fun rotateTextureView() {
+        val orientation = getApplicationOrientation()
+        val viewWidth = binding.textureView.width
+        val viewHeight = binding.textureView.height
+
+//        val matrix = Matrix()
+//        matrix.postRotate(-orientation.toFloat(), viewWidth * 0.5F, viewHeight * 0.5F)
+//        binding.textureView.setTransform(matrix)
+
+        val centerX = viewWidth / 2f
+        val centerY = viewHeight / 2f
+
+        val matrix = Matrix()
+        val rot = viewModel.rotation.value ?: 0
+        val scaleX = (viewModel.scaleX.value ?: 100) / 100f
+        val scaleY = (viewModel.scaleY.value ?: 100) / 100f
+
+        matrix.postScale(scaleX, scaleY, centerX, centerY)
+        matrix.postRotate(rot.toFloat(), centerX, centerY)
+        binding.textureView.setTransform(matrix)
+    }
+
 }

@@ -35,14 +35,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
                 android:max="200"
-                android:progress="100" />
+                android:progress="@={viewModel.scaleX}" />
 
             <TextView
                 android:id="@+id/tv_scalex"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0" />
+                android:text="@{viewModel.scaleX.toString()}" />
         </LinearLayout>
 
         <LinearLayout
@@ -67,14 +67,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
                 android:max="200"
-                android:progress="100" />
+                android:progress="@={viewModel.scaleY}" />
 
             <TextView
                 android:id="@+id/tv_scaley"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0" />
+                android:text="@{viewModel.scaleY.toString()}" />
         </LinearLayout>
 
         <LinearLayout
@@ -97,7 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
-                android:max="359"
+                android:max="360"
                 android:progress="@={viewModel.rotation}" />
 
             <TextView
@@ -105,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0" />
+                android:text="@{viewModel.rotation.toString()}" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
